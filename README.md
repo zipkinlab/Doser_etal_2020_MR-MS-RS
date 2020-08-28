@@ -2,4 +2,13 @@
 
 Jeffrey W. Doser, Aaron S. Weed, Elise F. Zipkin, Kathryn M. Miller, Andrew O. Finley
 
-Citation: Doser, J.W., Weed, A.S., Zipkin, E.F., Miller, K.M, Finley, A.O. (2020). Trends in bird abundance differ among protected forests but not bird guilds.  	arXiv:1310.8192. 
+Citation: Doser, J.W., Weed, A.S., Zipkin, E.F., Miller, K.M, Finley, A.O. (2020). Trends in bird abundance differ among protected forests but not bird guilds.  	arXiv:1310.8192.
+
+Please contact the first author for questions about the code or data: Jeffrey W. Doser (doserjef@msu.edu)
+
+# Code
+
+1. mr-ms-rs.R: Code to run hierarchical model in JAGS through R
+2. mr-ms-rs
+
+# Data
