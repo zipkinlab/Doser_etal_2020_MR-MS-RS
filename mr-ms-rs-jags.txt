@@ -1,0 +1,143 @@
+# Author: Jeffrey W. Doser
+# Description: Multi-species, multi-region removal sampling model to estimate
+#              trends in abundance of 106 bird species in NETN parks from 2006-2019
+
+# Iterating variables -----------------------------------------------------
+# Regions: r = 1,..., R
+# Species within region: i = 1,..., n[r]
+# Sites within  region: j = 1,..., J[r]
+# Years within region: t = 1,..., years[r]
+# Detection intervals: a = 1, ..., T
+
+# Abundance and detection model description -------------------------------
+# Detection: Intercept + Julian Date + (Julian Date)^2 + Time since sunrise + Year
+# Abundance: Intercept + Year + Forest Regeneration + Percent Forest + Basal Area + (Basal Area)^2
+
+model {
+
+  # Priors for variability parameters -------------------------------------
+  # Across parks ----------------------
+  tau.lambda.int ~ dgamma(0.1, 0.1)
+  tau.1.lambda ~ dgamma(0.1, 0.1)
+  tau.2.lambda ~ dgamma(0.1, 0.1)
+  tau.3.lambda ~ dgamma(0.1, 0.1)
+  tau.4.lambda ~ dgamma(0.1, 0.1)
+  tau.5.lambda ~ dgamma(0.1, 0.1)
+  tau.p.int ~ dgamma(0.1, 0.1)
+  tau.1.p ~ dgamma(0.1, 0.1)
+  tau.2.p ~ dgamma(0.1, 0.1)
+  tau.3.p ~ dgamma(0.1, 0.1)
+  tau.4.p ~ dgamma(0.1, 0.1)
+  # Across species --------------------
+  tau.lambda.sp.int ~ dgamma(0.1, 0.1)
+  tau.1.lambda.sp ~ dgamma(0.1, 0.1)
+  tau.2.lambda.sp ~ dgamma(0.1, 0.1)
+  tau.3.lambda.sp ~ dgamma(0.1, 0.1)
+  tau.4.lambda.sp ~ dgamma(0.1, 0.1)
+  tau.5.lambda.sp ~ dgamma(0.1, 0.1)
+  tau.p.sp.int ~ dgamma(0.1, 0.1)
+  tau.1.p.sp ~ dgamma(0.1, 0.1)
+  tau.2.p.sp ~ dgamma(0.1, 0.1)
+  tau.3.p.sp ~ dgamma(0.1, 0.1)
+  
+  # Priors for network-level coefficients ---------------------------------
+  mu.lambda ~ dnorm(0, 0.1)
+  beta.1.lambda ~ dnorm(0, 0.1)
+  beta.2.lambda ~ dnorm(0, 0.1)
+  beta.3.lambda ~ dnorm(0, 0.1)
+  beta.4.lambda ~ dnorm(0, 0.1)
+  beta.5.lambda ~ dnorm(0, 0.1)
+  mean.p ~ dunif(0.001, 1)
+  mu.p <- log(mean.p / (1 - mean.p))
+  beta.1.p ~ dnorm(0, 0.1)
+  beta.2.p ~ dnorm(0, 0.1)
+  beta.3.p ~ dnorm(0, 0.1)
+
+  # Define region-level coefficients -------------------------------------- 
+  for (r in 1:R) { # sites
+  
+    # Park-level abundance coefficients -----------------------------------
+    mu.lambda.r[r] ~ dnorm(mu.lambda, tau.lambda.int)
+    beta.1.lambda.r[r] ~ dnorm(beta.1.lambda, tau.1.lambda)
+    beta.2.lambda.r[r] ~ dnorm(beta.2.lambda, tau.2.lambda)
+    beta.3.lambda.r[r] ~ dnorm(beta.3.lambda, tau.3.lambda)
+    beta.4.lambda.r[r] ~ dnorm(beta.4.lambda, tau.4.lambda)
+    beta.5.lambda.r[r] ~ dnorm(beta.5.lambda, tau.5.lambda)
+    
+    # Park-level detection coefficients -----------------------------------
+    mu.p.r[r] ~ dnorm(mu.p, tau.p.int)
+    beta.1.p.r[r] ~ dnorm(beta.1.p, tau.1.p)
+    beta.2.p.r[r] ~ dnorm(beta.2.p, tau.2.p)
+    beta.3.p.r[r] ~ dnorm(beta.3.p, tau.3.p)
+    
+    # Define species-region specific coefficients -------------------------
+    for (i in 1:n[r]) { # species
+      # Species-region-level abundance coefficients -----------------------
+      mu.lambda.sp[i, r] ~ dnorm(mu.lambda.r[r], tau.lambda.sp.int)
+      beta.1.lambda.sp[i, r] ~ dnorm(beta.1.lambda.r[r], tau.1.lambda.sp)
+      beta.2.lambda.sp[i, r] ~ dnorm(beta.2.lambda.r[r], tau.2.lambda.sp)
+      beta.3.lambda.sp[i, r] ~ dnorm(beta.3.lambda.r[r], tau.3.lambda.sp)
+      beta.4.lambda.sp[i, r] ~ dnorm(beta.4.lambda.r[r], tau.4.lambda.sp)
+      beta.5.lambda.sp[i, r] ~ dnorm(beta.5.lambda.r[r], tau.5.lambda.sp)
+      # Species-region-level detection coefficients ----------------------- 
+      mu.p.sp[i, r] ~ dnorm(mu.p.r[r], tau.p.sp.int)
+      beta.1.p.sp[i, r] ~ dnorm(beta.1.p.r[r], tau.1.p.sp)
+      beta.2.p.sp[i, r] ~ dnorm(beta.2.p.r[r], tau.2.p.sp)
+      beta.3.p.sp[i, r] ~ dnorm(beta.3.p.r[r], tau.3.p.sp)
+    } # species
+    # Random year/region effects on detection ------------------------------
+    for (t in 1:years[r]) { # year
+      beta.4.p[r, t] ~ dnorm(0, tau.4.p)
+    } # year
+    
+  } # region
+  
+  # Data and Process Model ------------------------------------------------
+  
+  
+  for (r in 1:R) { # region
+    for (t in 1:years[r]) { # year
+      for (j in 1:J[r]) { # site
+        for (i in 1:n[r]) { # species
+          # Logit model for detection --------------------------------------
+          logit(p[r, i, j, t]) <- mu.p.sp[i, r] + beta.1.p.sp[i, r] * day[r, j, t] + beta.2.p.sp[i, r] * (day[r, j, t]^2) + beta.3.p.sp[i, r] * time[r, j, t] + beta.4.p[r, t]
+
+          # Log model for abundance ----------------------------------------
+          log(lambda[r, i, j, t]) <- mu.lambda.sp[i, r] + beta.1.lambda.sp[i, r] * year.covs[r, t] + beta.2.lambda.sp[i, r] * regen[r, j] + beta.3.lambda.sp[i, r] * percentForest[r, j] + beta.4.lambda.sp[i, r] * basalArea[r, j] + beta.5.lambda.sp[i, r] * (basalArea[r, j]^2)
+          
+          # Poisson "abundance" = mult cell prob x exp abun ----------------
+          # See Kery and Royle (2016) Applied Hierarchical Modeling in Ecology
+          # pages 342-346. 
+          for (a in 1:T) { # detection intervals
+            pi[r, i, j, t, a] <- (p[r, i, j, t] * (1 - p[r, i, j, t])^(a-1)) * lambda[r, i, j, t]
+            y[r, i, j, t, a] ~ dpois(pi[r, i, j, t, a])
+
+            # Posterior predictive checks for Bayesian P-value ------------
+            y.pred[r, i, j, t, a] ~ dpois(pi[r, i, j, t, a])
+            resid1[r, i, j, t, a] <- pow(pow(y[r, i, j, t, a], 0.5) - pow(pi[r, i, j, t, a], 0.5), 2)
+            resid1.pred[r, i, j, t, a] <- pow(pow(y.pred[r, i, j, t, a], 0.5) - pow(pi[r, i, j, t, a], 0.5), 2)
+          } # detection intervals
+	  # Generate predictions of latent abundance N --------------------
+	  N[r, i, j, t] ~ dpois(lambda[r, i, j, t])
+        } # species
+
+        # For Bayesian P-value --------------------------------------------
+        sum.temp.1[r, j, t] <- sum(resid1[r, 1:n[r], j, t, 1:T])
+        sum.temp.1.pred[r, j, t] <- sum(resid1.pred[r, 1:n[r], j, t, 1:T])
+
+        # Estimate missing covariate data ---------------------------------
+        day[r, j, t] ~ dnorm(0, 1)
+        time[r, j, t] ~ dnorm(0, 1)
+      } # sites
+    } # year
+
+    # Bayesian p-value -----------------------------------------------------
+    temp.1[r] <- sum(sum.temp.1[r, 1:J[r], 1:years[r]])
+    temp.1.pred[r] <- sum(sum.temp.1.pred[r, 1:J[r], 1:years[r]])
+  } # regions
+  # Complete Bayesian p-value ----------------------------------------------
+  fit1.data <- sum(temp.1[1:R])
+  fit1.pred <- sum(temp.1.pred[1:R])
+  bp.1 <- step(fit1.pred - fit1.data)
+
+}
