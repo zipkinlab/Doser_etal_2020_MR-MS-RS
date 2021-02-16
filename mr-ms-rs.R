@@ -72,10 +72,16 @@ inits <- function() {
 }
 
 # Set the MCMC settings ---------------
-n.burn <- 45000
-n.iter <- 50000
-n.thin <- 2
-n.chains <- 3
+# Takes a while
+# n.burn <- 45000
+# n.iter <- 50000
+# n.thin <- 2
+# n.chains <- 3
+# Small run
+n.burn <- 100
+n.iter <- 500
+n.thin <- 1
+n.chains <- 1
 
 # Fit the model -----------------------------------------------------------
 out <- jags(bugs.data, inits, parameters, 'mr-ms-rs-jags.txt', 
@@ -84,5 +90,7 @@ out <- jags(bugs.data, inits, parameters, 'mr-ms-rs-jags.txt',
 
 # Save the jags fit -------------------
 date <- Sys.Date()
-file.name <- paste("jagsFit-", "mr-ms-rs-", n.iter, "-iter-", date, ".R", sep = "")
+# Potentially a better name for the file results
+#file.name <- paste("jagsFit-", "mr-ms-rs-", n.iter, "-iter-", date, ".R", sep = "")
+file.name <- 'mr-ms-rs-results.R'
 save(out, file = file.name)

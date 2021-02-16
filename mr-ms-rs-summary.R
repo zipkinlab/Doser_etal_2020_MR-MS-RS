@@ -19,10 +19,14 @@ library(patchwork)
 # Load data ---------------------------------------------------------------
 load("mr-ms-rs-data.R")
 # Read in results ---------------------------------------------------------
+# The results file 'mr-ms-rs-results.R' comes from the script 'mr-ms-rs.R'
+# after running the model. Final results presented in Doser et al. (2021)
+# are not included on GitHub as the file size is too large. Contact 
+# Jeff Doser (doserjef@msu.edu) if file is desired. 
 load("mr-ms-rs-results.R")
   # Parks: (1) ACAD (2) MABI (3) MIMA (4) MORR (5) ROVA 
          # (6) SAGA (7) SAGA (8) WEFA
-
+# Number of iterations for posterior summary. 
 n.iter <- 2500
 # Save for use in derived quantities
 mu.p.samples <- out$sims.list$mu.p[1:n.iter]
