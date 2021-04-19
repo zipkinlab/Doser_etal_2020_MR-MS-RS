@@ -1,10 +1,12 @@
-# [Trends in bird abundance differ among protected forests but not bird guilds](https://arxiv.org/abs/2008.12184)
+# Trends in bird abundance differ among protected forests but not bird guilds
 
-Jeffrey W. Doser, Aaron S. Weed, Elise F. Zipkin, Kathryn M. Miller, Andrew O. Finley
+### Ecological Applications (in press)
 
-Citation: Doser, J.W., Weed, A.S., Zipkin, E.F., Miller, K.M, Finley, A.O. (2021). Trends in bird abundance differ among protected forests but not bird guilds.  	In press. Ecological Applications.
+### Jeffrey W. Doser, Aaron S. Weed, Elise F. Zipkin, Kathryn M. Miller, Andrew O. Finley
 
-Please contact the first author for questions about the code or data: Jeffrey W. Doser (doserjef@msu.edu)
+### Code/Data DOI: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4701477.svg)](https://doi.org/10.5281/zenodo.4701477)
+
+### Please contact the first author for questions about the code or data: Jeffrey W. Doser (doserjef@msu.edu)
 
 # Code
 
